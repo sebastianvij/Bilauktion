@@ -51,9 +51,6 @@ public class Main {
         System.out.println("Biler sorteret efter mærke");
         Collections.sort(cars, new CarBrandComparator());
         printSortedCars(cars);
-
-        System.out.println();
-        Collections.max(bids, new BidAmountComparator());
     }
 
     public static void addBid(List<Bid> bids, List<Car> cars, String bidderName, double amount, String numberPlate) throws InvalidBidException, NoCarsException {
