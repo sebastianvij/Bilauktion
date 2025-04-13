@@ -1,3 +1,5 @@
+import exceptions.InvalidBidException;
+import exceptions.NoCarsException;
 import BidComparators.BidAmountComparator;
 import CarComparators.CarBrandComparator;
 import CarComparators.CarPriceComparator;
@@ -25,12 +27,18 @@ public class Main {
         cars.add(car5);
 
         List<Bid> bids = new ArrayList<>();
-        bids.add(new Bid("Thor", 380999, car4));
-        bids.add(new Bid("Isak", 390999, car4));
-        bids.add(new Bid("Sebastian", 119000, car2));
-        bids.add(new Bid("Oliver", 115999, car2));
-        bids.add(new Bid("Osman", 7500, car5));
-        bids.add(new Bid("Oskar", 6000, car5));
+
+        try {
+            addBid(bids, cars, "Thor", 380999, "AY66012");
+            addBid(bids, cars, "Isak", 390999, "AY66012");
+            addBid(bids, cars, "Sebastian", 119000, "EG96979");
+            addBid(bids, cars, "Oliver", 115999, "EG96979");
+            addBid(bids, cars, "Osman", 7500, "DN24347");
+            addBid(bids, cars, "Oskar", 0, "DN24347"); // Invalidt bud
+            addBid(bids, cars, "Stig", 10000, "XN23910"); // Ugyldig nummerplade
+        } catch (InvalidBidException | NoCarsException e) {
+            System.out.println("Fejl ved oprettelse af bud: " + e.getMessage());
+        }
 
         System.out.println("Biler sorteret efter årgang:");
         Collections.sort(cars);
@@ -46,8 +54,31 @@ public class Main {
 
         System.out.println();
         Collections.max(bids, new BidAmountComparator());
-        
+    }
 
+    public static void addBid(List<Bid> bids, List<Car> cars, String bidderName, double amount, String numberPlate) throws InvalidBidException, NoCarsException {
+        if (cars.isEmpty()) {
+            throw new NoCarsException("Der er ingen tilgængelige biler i systemet.");
+        }
+
+        //Find bilen udfra nummerplade
+        Car targetCar = null;
+        for (Car car : cars) {
+            if (car.getNumberPlate().equalsIgnoreCase(numberPlate)) {
+                targetCar = car;
+                break;
+            }
+        }
+
+        if (targetCar == null) {
+            throw new InvalidBidException("Nummerpladen '" + numberPlate + "' findes ikke");
+        }
+
+        if (amount <= 0) {
+            throw new InvalidBidException("Buddet skal være større end 0 kr.");
+        }
+        bids.add(new Bid(bidderName, amount, targetCar));
+        System.out.println(bidderName + " har budt " + amount + " på " + targetCar.getYear() + " " + targetCar.getBrand() + " " + targetCar.getModel());
     }
 
     public static void printSortedCars(List<Car> cars) {

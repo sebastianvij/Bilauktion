@@ -1,4 +1,7 @@
 package exceptions;
 
-public class NoCarsException {
+public class NoCarsException extends Exception {
+    public NoCarsException(String message) {
+        super(message);
+    }
 }
