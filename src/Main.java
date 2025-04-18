@@ -12,6 +12,13 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        runCarAuction();
+    }
+
+    private static void runCarAuction() {
+        List<Car> cars = new ArrayList<>();
+        List<Bid> bids = new ArrayList<>();
+
         //Opret biler
         Car car1 = new Car("Toyota", "Yaris", 2015, 139000, "AT97660");
         Car car2 = new Car("Kia", "Rio", 2016, 129000, "EG96979");
@@ -19,14 +26,11 @@ public class Main {
         Car car4 = new Car("Tesla", "Model S", 2017, 409990, "AY66012");
         Car car5 = new Car("Reliant Motor", "Reliant Robin", 2001, 8000, "DN24347");
 
-        List<Car> cars = new ArrayList<>();
         cars.add(car1);
         cars.add(car2);
         cars.add(car3);
         cars.add(car4);
         cars.add(car5);
-
-        List<Bid> bids = new ArrayList<>();
 
         try {
             addBid(bids, cars, "Thor", 380999, "AY66012");
@@ -51,9 +55,13 @@ public class Main {
         System.out.println("Biler sorteret efter mærke");
         Collections.sort(cars, new CarBrandComparator());
         printSortedCars(cars);
+
+        for (Car car : cars) {
+            printHighestBid(car, bids);
+        }
     }
 
-    public static void addBid(List<Bid> bids, List<Car> cars, String bidderName, double amount, String numberPlate) throws InvalidBidException, NoCarsException {
+    private static void addBid(List<Bid> bids, List<Car> cars, String bidderName, double amount, String numberPlate) throws InvalidBidException, NoCarsException {
         if (cars.isEmpty()) {
             throw new NoCarsException("Der er ingen tilgængelige biler i systemet.");
         }
@@ -78,7 +86,25 @@ public class Main {
         System.out.println(bidderName + " har budt " + amount + " på " + targetCar.getYear() + " " + targetCar.getBrand() + " " + targetCar.getModel());
     }
 
-    public static void printSortedCars(List<Car> cars) {
+    private static void printHighestBid(Car car, List<Bid> bids) {
+        List<Bid> bidsForCar = new ArrayList<>();
+        for (Bid bid : bids) {
+            if (bid.getCar().equals(car)) {
+                bidsForCar.add(bid);
+            }
+        }
+
+        if (bidsForCar.isEmpty()) {
+            System.out.println("There are currently no bids on car: " +car);
+            return;
+        }
+
+        bidsForCar.sort(new BidAmountComparator());
+        Bid highestBid = bidsForCar.getFirst();
+        System.out.println(highestBid.getBidderName() + " currently has the highest bid at " + highestBid.getAmount() + " on car: " + car);
+    }
+
+    private static void printSortedCars(List<Car> cars) {
         for (Car car : cars) {
             System.out.println(car.getYear() + " " + car.getBrand() + " " + car.getModel() + "(" + car.getNumberPlate() + ") - " + car.getBasePrice() + " kr. ");
         }
